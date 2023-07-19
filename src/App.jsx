@@ -31,9 +31,16 @@ export function getBg(type) {
 
 
 function App() {
+  const [contacts, setContacts] = useState(data.contacts)
   const [activeContactId, setActiveContactId] = useState(data.contacts[0].id)
 
   const activeContact = data.contacts.find(contact => contact.id === activeContactId)
+
+  function saveContact(contact) {
+    setContacts(contacts.map(c => 
+      c.id === contact.id ? contact : c  
+    ))
+  }
 
   return (
     <Stack gap={3}>
@@ -59,11 +66,11 @@ function App() {
               >
                 + Create contact
               </Button>
-              <ContactList onSelectContact={contact => setActiveContactId(contact.id)} activeContact={activeContact} />
+              <ContactList onSelectContact={contact => setActiveContactId(contact.id)} activeContact={activeContact} contacts={contacts} />
             </Stack>
           </Col>
           <Col>
-            <ContactForm activeContact={activeContact} />
+            <ContactForm key={activeContact.id} activeContact={activeContact} onSaveContact={saveContact} />
           </Col>
           <Col xs={3}>
             <h3>Activités</h3>

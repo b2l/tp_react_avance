@@ -3,11 +3,10 @@ import {
   ListGroup,
   ListGroupItem
 } from "react-bootstrap";
-import data from "./contacts.json";
 
-export function ContactList({activeContact, onSelectContact}) {
+export function ContactList({contacts, activeContact, onSelectContact}) {
   return (<ListGroup variant="flush">
-    {data.contacts.map((contact) => (
+    {contacts.map((contact) => (
       <ListGroupItem onClick={e => onSelectContact(contact)} active={contact.id === activeContact.id} key={contact.id}>
         {contact.firstname} {contact.lastname}
       </ListGroupItem>
