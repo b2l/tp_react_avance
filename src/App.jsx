@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Nav,
   Container,
@@ -29,9 +29,12 @@ export function getBg(type) {
   }
 }
 
-const activeContact = data.contacts[3];
 
 function App() {
+  const [activeContactId, setActiveContactId] = useState(data.contacts[0].id)
+
+  const activeContact = data.contacts.find(contact => contact.id === activeContactId)
+
   return (
     <Stack gap={3}>
       <Navbar className="bg-body-tertiary" data-bs-theme="dark">
@@ -56,7 +59,7 @@ function App() {
               >
                 + Create contact
               </Button>
-              <ContactList activeContact={activeContact} />
+              <ContactList onSelectContact={contact => setActiveContactId(contact.id)} activeContact={activeContact} />
             </Stack>
           </Col>
           <Col>

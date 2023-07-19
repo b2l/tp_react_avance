@@ -5,10 +5,10 @@ import {
 } from "react-bootstrap";
 import data from "./contacts.json";
 
-export function ContactList({activeContact}) {
+export function ContactList({activeContact, onSelectContact}) {
   return (<ListGroup variant="flush">
     {data.contacts.map((contact) => (
-      <ListGroupItem active={contact.id === activeContact.id} key={contact.id}>
+      <ListGroupItem onClick={e => onSelectContact(contact)} active={contact.id === activeContact.id} key={contact.id}>
         {contact.firstname} {contact.lastname}
       </ListGroupItem>
     ))}

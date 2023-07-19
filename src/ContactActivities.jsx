@@ -8,7 +8,7 @@ import { getBg } from "App";
 
 export function ContactActivities({activeContact}) {
   return (
-    <Stack>
+    <Stack gap={3}>
       {data.activities
         .filter((activity) => activity.contactId === activeContact.id)
         .map((activity) => (
