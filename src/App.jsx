@@ -3,18 +3,17 @@ import {
   Nav,
   Container,
   Navbar,
-  ListGroup,
-  ListGroupItem,
   Row,
   Col,
-  Badge,
-  Card,
   Button,
   Stack,
 } from "react-bootstrap";
 import data from "./contacts.json";
+import { ContactList } from "ContactList";
+import { ContactForm } from "ContactForm";
+import { ContactActivities } from "ContactActivities";
 
-function getBg(type) {
+export function getBg(type) {
   switch (type) {
     case "note": {
       return "info";
@@ -30,13 +29,13 @@ function getBg(type) {
   }
 }
 
-const activeContact = data.contacts[3]
+const activeContact = data.contacts[3];
 
 function App() {
   return (
     <Stack gap={3}>
       <Navbar className="bg-body-tertiary" data-bs-theme="dark">
-        <Container fluid='lg'>
+        <Container fluid="lg">
           <Navbar.Brand href="#home">CRM</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -47,39 +46,25 @@ function App() {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      <Container fluid='lg'>
+      <Container fluid="lg">
         <Row>
           <Col xs={3}>
             <Stack gap={3}>
-            <Button variant="outline-primary" style={{margin: 'auto', display: 'block'}}>+ Create contact</Button>
-              <ListGroup variant="flush">
-                {data.contacts.map((contact) => (
-                  <ListGroupItem active={contact.id ===activeContact.id} key={contact.id}>
-                    {contact.firstname} {contact.lastname}
-                  </ListGroupItem>
-                ))}
-              </ListGroup>
-              </Stack>
+              <Button
+                variant="outline-primary"
+                style={{ margin: "auto", display: "block" }}
+              >
+                + Create contact
+              </Button>
+              <ContactList activeContact={activeContact} />
+            </Stack>
           </Col>
           <Col>
-            <main>
-              <h2>{activeContact.firstname} {activeContact.lastname}</h2>
-            </main>
+            <ContactForm activeContact={activeContact} />
           </Col>
           <Col xs={3}>
             <h3>Activités</h3>
-            {data.activities
-              .filter((activity) => activity.contactId === activeContact.id)
-              .map((activity) => (
-                <Card body border={getBg(activity.type)} key={activity.id}>
-                  <Card.Title>
-                    <Badge bg={getBg(activity.type)}>{activity.type}</Badge>
-                    {' '}
-                    {activity.date}
-                  </Card.Title>
-                  <Card.Text>{activity.note}</Card.Text>
-                </Card>
-              ))}
+            <ContactActivities activeContact={activeContact} />
           </Col>
         </Row>
       </Container>
