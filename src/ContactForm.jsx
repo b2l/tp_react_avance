@@ -12,31 +12,31 @@ export function ContactForm({ activeContact }) {
         <Row>
           <Group as={Col} className="mb-3" controlId="formBasicFirstname">
             <Label>Firstname</Label>
-            <Control type="text" placeholder="John" />
+            <Control type="text" placeholder="John" defaultValue={activeContact.firstname} />
           </Group>
           <Group as={Col} className="mb-3" controlId="formBasicLastname">
             <Label>Lastname</Label>
-            <Control type="text" placeholder="Doe" />
+            <Control type="text" placeholder="Doe"  defaultValue={activeContact.lastname}/>
           </Group>
         </Row>
         <Group className="mb-3" controlId="formBasicEmail">
           <Label>Email address</Label>
-          <Control type="email" placeholder="john.doe@gmail.com" />
+          <Control type="email" placeholder="john.doe@gmail.com"  defaultValue={activeContact.email}/>
         </Group>
         <Group className="mb-3" controlId="formBasicPhone">
           <Label>Phone number</Label>
-          <Control type="text" placeholder="0612131415" />
+          <Control type="text" placeholder="0612131415"  defaultValue={activeContact.phone}/>
         </Group>
         <Row>
           <Group as={Col} className="mb-3" controlId="formBasicAddress">
-            <Label>Address</Label>
-            <Control type="text" placeholder="11 av de la gare" />
+            <Label>Adress</Label>
+            <Control type="text" placeholder="11 av de la gare"  defaultValue={activeContact.adress}/>
           </Group>
         </Row>
         <Row>
           <Group as={Col} className="mb-3" controlId="formBasicZipCode">
             <Label>Zip code</Label>
-            <Control type="text" placeholder="31000" />
+            <Control type="text" placeholder="31000"  defaultValue={activeContact.postalZip}/>
           </Group>
           <Group as={Col} className="mb-3" controlId="formBasicCity">
             <Label>City</Label>
