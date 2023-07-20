@@ -1,45 +1,59 @@
-import React, { useState } from "react";
+import React, { useState } from 'react'
 import {
   Nav,
   Container,
   Navbar,
-  Row,
   Col,
   Button,
   Stack,
-} from "react-bootstrap";
-import data from "./contacts.json";
-import { ContactList } from "ContactList";
-import { ContactForm } from "ContactForm";
-import { ContactActivities } from "ContactActivities";
+} from 'react-bootstrap'
+import data from './contacts.json'
+import { ContactList } from 'ContactList'
+import { ContactForm } from 'ContactForm'
+import { ContactActivities } from 'ContactActivities'
+import 'main.css'
+import { nanoid } from '@reduxjs/toolkit'
 
 export function getBg(type) {
   switch (type) {
-    case "note": {
-      return "info";
+    case 'note': {
+      return 'info'
     }
-    case "email": {
-      return "dark";
+    case 'email': {
+      return 'dark'
     }
-    case "phone": {
-      return "success";
+    case 'phone': {
+      return 'success'
     }
     default:
-      throw Error(`Unexpected activity type ${type}`);
+      throw Error(`Unexpected activity type ${type}`)
   }
 }
-
 
 function App() {
   const [contacts, setContacts] = useState(data.contacts)
   const [activeContactId, setActiveContactId] = useState(data.contacts[0].id)
 
-  const activeContact = data.contacts.find(contact => contact.id === activeContactId)
+  const activeContact = activeContactId
+    ? contacts.find((contact) => contact.id === activeContactId)
+    : {
+        firstname: '',
+        lastname: '',
+        email: '',
+        phone: '',
+        adress: '',
+        postalZip: '',
+        city: '',
+      }
 
   function saveContact(contact) {
-    setContacts(contacts.map(c => 
-      c.id === contact.id ? contact : c  
-    ))
+    if (activeContactId === null) {
+      const newContact = { ...contact, id: nanoid() }
+      setContacts([...contacts, { ...newContact }])
+      setActiveContactId(newContact.id)
+    } else {
+      setContacts(contacts.map((c) => (c.id === activeContactId ? contact : c)))
+    }
   }
 
   return (
@@ -57,29 +71,44 @@ function App() {
         </Container>
       </Navbar>
       <Container fluid="lg">
-        <Row>
+        <Stack
+          direction="horizontal"
+          gap={3}
+          style={{ alignItems: 'flex-start' }}
+        >
           <Col xs={3}>
             <Stack gap={3}>
               <Button
                 variant="outline-primary"
-                style={{ margin: "auto", display: "block" }}
+                style={{ margin: 'auto', display: 'block' }}
+                onClick={(e) => setActiveContactId(null)}
               >
                 + Create contact
               </Button>
-              <ContactList onSelectContact={contact => setActiveContactId(contact.id)} activeContact={activeContact} contacts={contacts} />
+              <ContactList
+                onSelectContact={(contact) =>
+                  setActiveContactId(contact.id)
+                }
+                activeContact={activeContact}
+                contacts={contacts}
+              />
             </Stack>
           </Col>
           <Col>
-            <ContactForm key={activeContact.id} activeContact={activeContact} onSaveContact={saveContact} />
+            <ContactForm
+              key={activeContact.id}
+              activeContact={activeContact}
+              onSaveContact={saveContact}
+            />
           </Col>
           <Col xs={3}>
             <h3>Activités</h3>
-            <ContactActivities activeContact={activeContact} />
+            <ContactActivities activeContactId={activeContactId} />
           </Col>
-        </Row>
+        </Stack>
       </Container>
     </Stack>
-  );
+  )
 }
 
-export default App;
+export default App

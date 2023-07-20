@@ -27,7 +27,6 @@ export function ContactForm({ activeContact, onSaveContact }) {
   function handleSaveContact(e) {
     e.preventDefault()
     onSaveContact({
-      id: activeContact.id,
       firstname,
       lastname,
       email,
