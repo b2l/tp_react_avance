@@ -1,16 +1,19 @@
+import { useActiveContact, useSaveContact } from 'App'
 import React from 'react'
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap'
 import { useForm } from 'react-hook-form'
 const { Group, Label, Control } = Form
 
-export function ContactForm({ activeContact, onSaveContact }) {
+export function ContactForm() {
+  const activeContact = useActiveContact()
+  const onSaveContact = useSaveContact()
+
   const {
     register,
     handleSubmit,
     watch,
     getValues,
     formState: { errors },
-    trigger,
   } = useForm({
     mode: 'onTouched',
     defaultValues: {

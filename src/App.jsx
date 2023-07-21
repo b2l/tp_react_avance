@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import { Nav, Container, Navbar, Col, Button, Stack } from 'react-bootstrap'
 import data from './contacts.json'
 import { ContactList } from 'ContactList'
@@ -6,35 +6,95 @@ import { ContactForm } from 'ContactForm'
 import { ContactActivities } from 'ContactActivities'
 import 'main.css'
 import { nanoid } from '@reduxjs/toolkit'
+import {
+  Link,
+  Outlet,
+  RouterProvider,
+  createBrowserRouter,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 
 const normalizedContacts = data.contacts.reduce((acc, contact) => {
   acc[contact.id] = contact
   return acc
 }, {})
 
-function App() {
-  const [contacts, setContacts] = useState(normalizedContacts)
-  const [activeContactId, setActiveContactId] = useState(data.contacts[0].id)
+function RoutedApp() {
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <Layout />,
+      errorElement: <ErrorPage />,
+      children: [
+        {
+          path: 'contacts?/:id',
+          element: <Contacts />,
+        },
+      ],
+    },
+  ])
 
-  const activeContact = activeContactId
-    ? contacts[activeContactId]
+  return (
+    <ContactsProvider>
+      <RouterProvider router={router} />
+    </ContactsProvider>
+  )
+}
+
+export function useContacts() {
+  const [contacts, setContacts] = useContext(contactsContext)
+  return contacts
+}
+
+export function useSaveContact() {
+  const [contacts, setContacts] = useContext(contactsContext)
+  const navigate = useNavigate()
+
+  return function saveContact(contact) {
+    const newContacts = { ...contacts, [contact.id]: { ...contact} }
+    setContacts(newContacts)
+    navigate(`/contacts/${contact.id}`) 
+  }
+}
+
+export function useActiveContact() {
+  const { id } = useParams()
+  const contacts = useContacts()
+  return id !== 'new'
+    ? contacts[id]
     : {
+        id: nanoid(),
         firstname: '',
         lastname: '',
-        email: '',
         phone: '',
+        email: '',
+        city: '',
         adress: '',
         postalZip: '',
-        city: '',
       }
+}
 
-  function saveContact(contact) {
-    const id = activeContactId === null ? nanoid() : activeContactId
-    const newContacts = { ...contacts, [id]: { ...contact, id } }
-    setContacts(newContacts)
-    setActiveContactId(id)
-  }
+const contactsContext = createContext(null)
 
+function ContactsProvider(props) {
+  const contactsState = useState(normalizedContacts)
+  return (
+    <contactsContext.Provider value={contactsState}>
+      {props.children}
+    </contactsContext.Provider>
+  )
+}
+
+function ErrorPage() {
+  return (
+    <Layout>
+      <h1>Page not found</h1>
+    </Layout>
+  )
+}
+
+function Layout(props) {
   return (
     <Stack gap={3}>
       <Navbar className="bg-body-tertiary" data-bs-theme="dark">
@@ -43,8 +103,12 @@ function App() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="#contacts">Contacts</Nav.Link>
-              <Nav.Link href="#activities">Activités</Nav.Link>
+              <Nav.Link as={Link} to="/contacts">
+                Contacts
+              </Nav.Link>
+              <Nav.Link as={Link} to="/activities">
+                Activités
+              </Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -57,35 +121,35 @@ function App() {
         >
           <Col xs={3}>
             <Stack gap={3}>
-              <Button
-                variant="outline-primary"
+              <Link
                 style={{ margin: 'auto', display: 'block' }}
-                onClick={(e) => setActiveContactId(null)}
+                to="/contacts/new"
               >
                 + Create contact
-              </Button>
-              <ContactList
-                onSelectContact={(contact) => setActiveContactId(contact.id)}
-                activeContactId={activeContactId}
-                contacts={contacts}
-              />
+              </Link>
+              <ContactList/>
             </Stack>
           </Col>
-          <Col>
-            <ContactForm
-              key={activeContactId}
-              activeContact={activeContact}
-              onSaveContact={saveContact}
-            />
-          </Col>
-          <Col xs={3}>
-            <h3>Activités</h3>
-            <ContactActivities activeContactId={activeContactId} />
-          </Col>
+          {props.children ?? <Outlet />}
         </Stack>
       </Container>
     </Stack>
   )
 }
 
-export default App
+function Contacts() {
+  const {id} = useParams()
+  return (
+    <>
+      <Col>
+        <ContactForm key={id} />
+      </Col>
+      <Col xs={3}>
+        <h3>Activités</h3>
+        <ContactActivities />
+      </Col>
+    </>
+  )
+}
+
+export default RoutedApp

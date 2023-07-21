@@ -1,6 +1,7 @@
 import React from 'react'
 import { Badge, Card, Stack } from 'react-bootstrap'
 import data from './contacts.json'
+import { useActiveContact } from 'App'
 
 function getBg(type) {
   switch (type) {
@@ -18,11 +19,12 @@ function getBg(type) {
   }
 }
 
-export function ContactActivities({ activeContactId }) {
+export function ContactActivities() {
+  const activeContact = useActiveContact()
   return (
     <Stack gap={3}>
       {data.activities
-        .filter((activity) => activity.contactId === activeContactId)
+        .filter((activity) => activity.contactId === activeContact?.id)
         .sort((a, b) => {
           const dateA = new Date(a.date)
           const dateB = new Date(b.date)
