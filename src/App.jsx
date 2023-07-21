@@ -1,12 +1,5 @@
 import React, { useState } from 'react'
-import {
-  Nav,
-  Container,
-  Navbar,
-  Col,
-  Button,
-  Stack,
-} from 'react-bootstrap'
+import { Nav, Container, Navbar, Col, Button, Stack } from 'react-bootstrap'
 import data from './contacts.json'
 import { ContactList } from 'ContactList'
 import { ContactForm } from 'ContactForm'
@@ -14,28 +7,17 @@ import { ContactActivities } from 'ContactActivities'
 import 'main.css'
 import { nanoid } from '@reduxjs/toolkit'
 
-export function getBg(type) {
-  switch (type) {
-    case 'note': {
-      return 'info'
-    }
-    case 'email': {
-      return 'dark'
-    }
-    case 'phone': {
-      return 'success'
-    }
-    default:
-      throw Error(`Unexpected activity type ${type}`)
-  }
-}
+const normalizedContacts = data.contacts.reduce((acc, contact) => {
+  acc[contact.id] = contact
+  return acc
+}, {})
 
 function App() {
-  const [contacts, setContacts] = useState(data.contacts)
+  const [contacts, setContacts] = useState(normalizedContacts)
   const [activeContactId, setActiveContactId] = useState(data.contacts[0].id)
 
   const activeContact = activeContactId
-    ? contacts.find((contact) => contact.id === activeContactId)
+    ? contacts[activeContactId]
     : {
         firstname: '',
         lastname: '',
@@ -47,13 +29,10 @@ function App() {
       }
 
   function saveContact(contact) {
-    if (activeContactId === null) {
-      const newContact = { ...contact, id: nanoid() }
-      setContacts([...contacts, { ...newContact }])
-      setActiveContactId(newContact.id)
-    } else {
-      setContacts(contacts.map((c) => (c.id === activeContactId ? contact : c)))
-    }
+    const id = activeContactId === null ? nanoid() : activeContactId
+    const newContacts = { ...contacts, [id]: { ...contact, id } }
+    setContacts(newContacts)
+    setActiveContactId(id)
   }
 
   return (
@@ -86,17 +65,15 @@ function App() {
                 + Create contact
               </Button>
               <ContactList
-                onSelectContact={(contact) =>
-                  setActiveContactId(contact.id)
-                }
-                activeContact={activeContact}
+                onSelectContact={(contact) => setActiveContactId(contact.id)}
+                activeContactId={activeContactId}
                 contacts={contacts}
               />
             </Stack>
           </Col>
           <Col>
             <ContactForm
-              key={activeContact.id}
+              key={activeContactId}
               activeContact={activeContact}
               onSaveContact={saveContact}
             />

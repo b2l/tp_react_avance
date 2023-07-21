@@ -1,7 +1,22 @@
 import React from 'react'
 import { Badge, Card, Stack } from 'react-bootstrap'
 import data from './contacts.json'
-import { getBg } from 'App'
+
+function getBg(type) {
+  switch (type) {
+    case 'note': {
+      return 'info'
+    }
+    case 'email': {
+      return 'dark'
+    }
+    case 'phone': {
+      return 'success'
+    }
+    default:
+      throw Error(`Unexpected activity type ${type}`)
+  }
+}
 
 export function ContactActivities({ activeContactId }) {
   return (
