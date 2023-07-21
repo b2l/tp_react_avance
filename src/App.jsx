@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, {
+  useState,
+} from 'react'
 import { Nav, Container, Navbar, Col, Button, Stack } from 'react-bootstrap'
 import data from './contacts.json'
 import { ContactList } from 'ContactList'
@@ -6,6 +8,7 @@ import { ContactForm } from 'ContactForm'
 import { ContactActivities } from 'ContactActivities'
 import 'main.css'
 import { nanoid } from '@reduxjs/toolkit'
+import { Link, Route, RouterProvider, useRouter } from 'Router'
 
 const normalizedContacts = data.contacts.reduce((acc, contact) => {
   acc[contact.id] = contact
@@ -43,8 +46,8 @@ function App() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="#contacts">Contacts</Nav.Link>
-              <Nav.Link href="#activities">Activités</Nav.Link>
+              <Link to="/contacts">Contacts</Link>
+              <Link to="/activities">Activités</Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -55,37 +58,44 @@ function App() {
           gap={3}
           style={{ alignItems: 'flex-start' }}
         >
-          <Col xs={3}>
-            <Stack gap={3}>
-              <Button
-                variant="outline-primary"
-                style={{ margin: 'auto', display: 'block' }}
-                onClick={(e) => setActiveContactId(null)}
-              >
-                + Create contact
-              </Button>
-              <ContactList
-                onSelectContact={(contact) => setActiveContactId(contact.id)}
-                activeContactId={activeContactId}
-                contacts={contacts}
+          <Route path="/contacts/:id">
+            <Col xs={3}>
+              <Stack gap={3}>
+                <Button
+                  variant="outline-primary"
+                  style={{ margin: 'auto', display: 'block' }}
+                  onClick={(e) => setActiveContactId(null)}
+                >
+                  + Create contact
+                </Button>
+                <ContactList
+                  onSelectContact={(contact) => setActiveContactId(contact.id)}
+                  activeContactId={activeContactId}
+                  contacts={contacts}
+                />
+              </Stack>
+            </Col>
+            <Col>
+              <ContactForm
+                key={activeContactId}
+                activeContact={activeContact}
+                onSaveContact={saveContact}
               />
-            </Stack>
-          </Col>
-          <Col>
-            <ContactForm
-              key={activeContactId}
-              activeContact={activeContact}
-              onSaveContact={saveContact}
-            />
-          </Col>
-          <Col xs={3}>
-            <h3>Activités</h3>
-            <ContactActivities activeContactId={activeContactId} />
-          </Col>
+            </Col>
+            <Col xs={3}>
+              <h3>Activités</h3>
+              <ContactActivities activeContactId={activeContactId} />
+            </Col>
+          </Route>
+          <Route path="/activities">Hello activities</Route>
         </Stack>
       </Container>
     </Stack>
   )
 }
 
-export default App
+export default () => (
+  <RouterProvider>
+    <App />
+  </RouterProvider>
+)
