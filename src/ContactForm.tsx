@@ -1,12 +1,17 @@
-import { useActiveContact, useSaveContact } from 'App'
-import React from 'react'
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap'
 import { useForm } from 'react-hook-form'
+import { useActiveContact } from './hooks'
+import { useAppDispatch } from './store/store'
+import { Contact, actions } from "./store/contactsSlice"
 const { Group, Label, Control } = Form
 
 export function ContactForm() {
   const activeContact = useActiveContact()
-  const onSaveContact = useSaveContact()
+  const dispatch = useAppDispatch()
+
+  const onSaveContact = (contact: Partial<Contact>) => {
+    dispatch(actions.contactAdded(contact))
+  }
 
   const {
     register,
@@ -14,7 +19,7 @@ export function ContactForm() {
     watch,
     getValues,
     formState: { errors },
-  } = useForm({
+  } = useForm<Partial<Contact>>({
     mode: 'onTouched',
     defaultValues: {
       ...activeContact,
