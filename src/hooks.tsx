@@ -2,16 +2,15 @@ import { useSyncExternalStore } from 'react'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { RootState } from './store/store'
+import { getActivities, getContact, getContactActivities } from './selectors'
 
 export function useActivities() {
-  return useSelector((state: RootState) => state.activities)
+  return useSelector(getActivities)
 }
 
 export function useActiveContactActivities() {
   const { id } = useParams()
-  return useSelector((state: RootState) =>
-    state.activities.filter((activity) => activity.contactId === id)
-  )
+  return useSelector(getContactActivities(id))
 }
 
 export function useContacts() {
@@ -20,9 +19,12 @@ export function useContacts() {
 
 export function useActiveContact() {
   const { id } = useParams()
-  return useSelector((state: RootState) =>
-    state.contacts.find((contact) => contact.id === id)
-  )
+  if (!id) throw Error("can't find contact in route")
+  return useSelector(getContact(id))
+}
+
+export function useIsOnline() {
+  return useSyncExternalStore(subscribeToOnline, getIsOnline)
 }
 
 function subscribeToOnline(callback: () => void) {
@@ -36,8 +38,4 @@ function subscribeToOnline(callback: () => void) {
 
 function getIsOnline() {
   return window.navigator.onLine
-}
-
-export function useIsOnline() {
-  return useSyncExternalStore(subscribeToOnline, getIsOnline)
 }

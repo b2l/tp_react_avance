@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { nanoid } from '@reduxjs/toolkit'
-import { ReactNode, useState } from 'react'
+import { FormEvent, ReactNode, useState } from 'react'
 import { Badge, Button, Card, Form, Stack } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
 import { useForm } from 'react-hook-form'
@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom'
 import { Activity, actions } from './store/activitiesSlice'
 import { useActiveContactActivities } from './hooks'
 import { useAppDispatch } from './store/store'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 const { Group, Label, Control } = Form
 
 function getBg(type: Activity['type']) {
@@ -27,20 +28,41 @@ function getBg(type: Activity['type']) {
 }
 
 export function ContactActivities() {
-  const activities = useActiveContactActivities()
   const { id } = useParams()
+  const url = `http://localhost:3001/activities?contactId=${id}`
+  const { data: activities } = useQuery({
+    queryKey: ['activities', id],
+    queryFn: async () => {
+      const response = await fetch(url)
+      const json = await response.json()
+      return json as Activity[]
+    },
+  })
+
+  const queryClient = useQueryClient()
+
+  const saveActivity = useMutation({
+    mutationFn: async (activity: Partial<Activity>) => {
+      const response = await fetch('http://localhost:3001/activities', {
+        method: 'POST',
+        body: JSON.stringify(activity),
+        headers: { 'content-type': 'application/json'}
+      })
+      if (response.status !== 201) throw new Error("Can't save activity")
+
+      queryClient.invalidateQueries(['activities', id])
+    },
+  })
+
   const dispatch = useAppDispatch()
   const [isOpen, setIsOpen] = useState(false)
 
   function onSave(data: Partial<Activity>) {
-    dispatch(
-      actions.activityAdded({
-        ...data,
-        id: nanoid(),
-        date: new Date().toISOString(),
-        contactId: id,
-      })
-    )
+    saveActivity.mutate({
+      ...data,
+      date: new Date().toISOString(),
+      contactId: id,
+    })
     setIsOpen(false)
   }
 
@@ -61,7 +83,7 @@ export function ContactActivities() {
           document.body
         )}
 
-      {activities.map((activity) => (
+      {activities?.map((activity) => (
         <Card body border={getBg(activity.type)} key={activity.id}>
           <Card.Title>
             <Badge bg={getBg(activity.type)}>{activity.type}</Badge>{' '}
@@ -115,10 +137,18 @@ type ActivityFormProps = {
 }
 
 function ActivityForm(props: ActivityFormProps) {
-  const { register, handleSubmit } = useForm()
+  const { register, handleSubmit, watch} = useForm()
+  const type = watch('type')
+  const date = watch('date')
+  const phone = watch('phone')
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    props.onSave({type, date}) 
+  }
 
   return (
-    <Form onSubmit={handleSubmit(props.onSave)}>
+    <Form onSubmit={onSubmit}>
       <Group controlId="type">
         <Label> Type</Label>
         <Control {...register('type')} />

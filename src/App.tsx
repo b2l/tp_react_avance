@@ -1,7 +1,4 @@
-import { ContactActivities } from './ContactActivities'
-import { ContactForm } from './ContactForm'
-import { ContactList } from './ContactList'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Col, Container, Nav, Navbar, Stack } from 'react-bootstrap'
 import { Provider } from 'react-redux'
 import {
@@ -12,8 +9,15 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom'
-import { store } from './store/store'
+import { ContactActivities } from './ContactActivities'
+import { ContactForm } from './ContactForm'
+import { ContactList } from './ContactList'
 import { useIsOnline } from './hooks'
+import { store } from './store/store'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+// Create a client
+const queryClient = new QueryClient()
 
 function RoutedApp() {
   const router = createBrowserRouter([
@@ -41,9 +45,11 @@ function RoutedApp() {
   ])
 
   return (
-    <Provider store={store}>
-      <RouterProvider router={router} />
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <RouterProvider router={router} />
+      </Provider>
+    </QueryClientProvider>
   )
 }
 

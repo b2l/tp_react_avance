@@ -9,7 +9,7 @@ export function ContactForm() {
   const activeContact = useActiveContact()
   const dispatch = useAppDispatch()
 
-  const onSaveContact = (contact: Partial<Contact>) => {
+  const onSaveContact = (contact: Contact) => {
     dispatch(actions.contactAdded(contact))
   }
 
@@ -19,7 +19,7 @@ export function ContactForm() {
     watch,
     getValues,
     formState: { errors },
-  } = useForm<Partial<Contact>>({
+  } = useForm<Contact>({
     mode: 'onTouched',
     defaultValues: {
       ...activeContact,

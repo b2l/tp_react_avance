@@ -1,22 +1,27 @@
-import { useContacts } from './hooks'
-import React, { memo, useMemo } from 'react'
+import { memo } from 'react'
 import { ListGroup, ListGroupItem } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
-import { RootState } from './store/store'
+import { getContacts } from './selectors'
 import { Contact } from './store/contactsSlice'
+import { useQuery } from '@tanstack/react-query'
 
 export function ContactList() {
   const navigate = useNavigate()
-  const contacts = useSelector(
-    (state: RootState) =>
-      [...state?.contacts].sort((a, b) => (a.lastname > b?.lastname ? 1 : -1))
-  )
+
+  const { data: contacts } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: async () => {
+      const response = await fetch('http://localhost:3001/contacts')
+      const json = await response.json() 
+      return json as Contact[]
+    }
+  })
   const { id } = useParams()
 
   return (
     <ListGroup variant="flush" style={{ maxHeight: '86vh', overflow: 'auto' }}>
-      {contacts.map((contact) => (
+      {contacts?.map((contact) => (
         <MemoisedContact
           contact={contact}
           isActive={contact.id === id}
